@@ -40,7 +40,7 @@ namespace VRStandardAssets.Utils
 
 
         private const string k_SliderMaterialPropertyName = "_SliderValue"; // The name of the property on the SlidingUV shader that needs to be changed in order for it to fill.
-
+        private bool hasBeenFilled = false;
 
         private void OnEnable ()
         {
@@ -102,6 +102,8 @@ namespace VRStandardAssets.Utils
 
         private IEnumerator FillBar ()
         {
+            if (hasBeenFilled)
+                yield return null;
             // When the bar starts to fill, reset the timer.
             m_Timer = 0f;
 
@@ -142,8 +144,9 @@ namespace VRStandardAssets.Utils
             m_Audio.Play();
 
             // If the bar should be disabled once it is filled, do so now.
-            if (m_DisableOnBarFill)
+            if (m_DisableOnBarFill) {
                 enabled = false;
+            }                
         }
 
 
@@ -183,7 +186,6 @@ namespace VRStandardAssets.Utils
         {
             // The user is now looking at the bar.
             m_GazeOver = true;
-            Debug.Log("Over: !" + gameObject.name);
 
             // Play the clip appropriate for when the user starts looking at the bar.
             m_Audio.clip = m_OnOverClip;
@@ -212,6 +214,18 @@ namespace VRStandardAssets.Utils
 
         private void HandleFilledBar() {
             manager.SetSelectedAnswer(this);
+            SetSliderValue(1f);
+            hasBeenFilled = true;
+            if (isCorrectAnswer) {
+                setFillColor(Color.green);
+            } else {
+                setFillColor(Color.red);
+            }
+        }
+
+        private void setFillColor(Color c) {
+            Image fill = GetComponentInChildren<Image>();
+            fill.color = c;
         }
     }
 }
