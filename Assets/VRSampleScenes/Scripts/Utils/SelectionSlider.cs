@@ -36,14 +36,16 @@ namespace VRStandardAssets.Utils
         private bool m_GazeOver;                                            // Whether the user is currently looking at the bar.
         private float m_Timer;                                              // Used to determine how much of the bar should be filled.
         private Coroutine m_FillBarRoutine;                                 // Reference to the coroutine that controls the bar filling up, used to stop it if required.
-        public bool isCorrectAnswer = false;                                // Whether this is the correct answer or not
-
+        public bool m_isCorrectAnswer = false;                                // Whether this is the correct answer or not
+        public bool m_isNextQuestButton = false;
+        private Color m_originalColor = new Color32(34, 44, 55, 200);
 
         private const string k_SliderMaterialPropertyName = "_SliderValue"; // The name of the property on the SlidingUV shader that needs to be changed in order for it to fill.
         private bool hasBeenFilled = false;
 
         private void OnEnable ()
         {
+            m_VRInput = Camera.main.GetComponent<VRInput>();
             m_VRInput.OnDown += HandleDown;
             m_VRInput.OnUp += HandleUp;            
 
@@ -216,8 +218,12 @@ namespace VRStandardAssets.Utils
             manager.SetSelectedAnswer(this);
             SetSliderValue(1f);
             hasBeenFilled = true;
-            if (isCorrectAnswer) {
+            if (m_isCorrectAnswer) {
                 setFillColor(Color.green);
+                manager.FadeInNextButton();
+            } else if (m_isNextQuestButton) {
+                manager.FadeOutNextButton();
+                manager.LoadNextQuestion();
             } else {
                 setFillColor(Color.red);
             }
@@ -226,6 +232,10 @@ namespace VRStandardAssets.Utils
         private void setFillColor(Color c) {
             Image fill = GetComponentInChildren<Image>();
             fill.color = c;
+        }
+
+        public void resetFillColor() {
+            setFillColor(m_originalColor);
         }
     }
 }
