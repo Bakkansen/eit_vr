@@ -39,6 +39,7 @@ namespace VRStandardAssets.Utils
         public bool m_isCorrectAnswer = false;                                // Whether this is the correct answer or not
         public bool m_isNextQuestButton = false;
         private Color m_originalColor = new Color32(34, 44, 55, 200);
+        private float m_answerScale = 1f;
 
         private const string k_SliderMaterialPropertyName = "_SliderValue"; // The name of the property on the SlidingUV shader that needs to be changed in order for it to fill.
         private bool hasBeenFilled = false;
@@ -236,6 +237,14 @@ namespace VRStandardAssets.Utils
 
         public void resetFillColor() {
             setFillColor(m_originalColor);
+        }
+
+        public void SetAnswerScale(float s) {
+            m_answerScale = s;
+        }
+
+        public float GetAnswerScale() {
+            return m_answerScale;
         }
     }
 }
