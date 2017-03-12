@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using VRStandardAssets.Utils;
 
@@ -23,6 +24,7 @@ public class UIManager : MonoBehaviour {
     [SerializeField] private SelectionSlider answer1, answer2, answer3, answer4, nextQ;
     [SerializeField] private UIFader fader;
     [SerializeField] private UIFader nextQFader;
+    [SerializeField] private UIFader startFader;
     [SerializeField] private Text title;   
     [SerializeField] private int m_currentQuestion = 1;
     [SerializeField] private GameObject m_cube;
@@ -40,13 +42,19 @@ public class UIManager : MonoBehaviour {
         m_sliders = new List<SelectionSlider>() { answer1, answer2, answer3, answer4 };
         m_Reticle.Show();
         m_Radial.Hide();
-        LoadNextQuestion();
         m_resize = m_cube.GetComponent<ResizeCube>();
-        yield return StartCoroutine(fader.InteruptAndFadeIn());
+        yield return StartCoroutine(fader.InteruptAndFadeOut());
+        yield return StartCoroutine(startFader.InteruptAndFadeIn());
+        // yield return StartCoroutine(fader.InteruptAndFadeIn());
     }    
 
-    public void SetSelectedAnswer(SelectionSlider answer) {        
+    public void SetSelectedAnswer(SelectionSlider answer) {                
         selectedAnswer = answer;
+        if (selectedAnswer.m_isStartBar) {
+            StartCoroutine(startFader.InteruptAndFadeOut());
+            StartCoroutine(fader.InteruptAndFadeIn());
+            LoadNextQuestion();
+        }
         m_resize.SetScaleTo(selectedAnswer.GetAnswerScale());
     }
 
@@ -55,7 +63,6 @@ public class UIManager : MonoBehaviour {
         title.text = t;
         counter.Shuffle();        
         for (int i = 0; i < m_sliders.Count; i++) {
-            Debug.Log(counter[i]);
             if (counter[i] == 0) {
                 m_sliders[i].m_isCorrectAnswer = true;
             }
@@ -77,10 +84,17 @@ public class UIManager : MonoBehaviour {
     }
 
     public void FadeInNextButton() {
+        if (m_currentQuestion > 3) {
+            Text t = nextQ.GetComponentInChildren<Text>();
+            t.text = "Avslutt Quiz";
+        }
         StartCoroutine(nextQFader.InteruptAndFadeIn());
     }
 
     public void FadeOutNextButton() {
+        if (m_currentQuestion > 3) {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
         StartCoroutine(nextQFader.InteruptAndFadeOut());
     }
 }

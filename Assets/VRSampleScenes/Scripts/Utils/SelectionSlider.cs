@@ -32,6 +32,7 @@ namespace VRStandardAssets.Utils
         [SerializeField] private UIManager manager;
 
 
+        public bool m_isStartBar;
         public bool m_BarFilled;                                           // Whether the bar is currently filled.
         private bool m_GazeOver;                                            // Whether the user is currently looking at the bar.
         private float m_Timer;                                              // Used to determine how much of the bar should be filled.
@@ -70,11 +71,11 @@ namespace VRStandardAssets.Utils
 
         private void Update ()
         {
-            if(!m_UIFader)
+            if(!m_UIFader || !m_isStartBar)
                 return;
 
             // If this bar is using a UIFader turn off the collider when it's invisible.
-            m_Collider.enabled = m_UIFader.Visible;
+            m_Collider.enabled = m_UIFader.Visible || m_isStartBar;
         }
 
 
