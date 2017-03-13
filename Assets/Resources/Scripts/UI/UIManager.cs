@@ -14,9 +14,9 @@ public class UIManager : MonoBehaviour {
     }
 
     Dictionary<int, QuizEntry> m_quizQuestions = new Dictionary<int, QuizEntry>() {
-        {1, new QuizEntry { quizText = "Hvor mange kubikkdesimeter tilsvarer 1 kubikkmeter?", answers = new string[]{ "1000 dm^3", "10 000 dm^3", "10 dm^3", "100 dm^3" }, scales = new float[] { 1f, 10f, 0.01f, 0.1f }}},
-        {2, new QuizEntry { quizText = "Hvor mange kubikkcentimeter tilsvarer 1 kubikkmeter?", answers = new string[]{ "1 000 000 cm^3", "100  cm^3", "1000 cm^3", "100 000 000 cm^3" }, scales = new float[] { 1f, 0.0001f, 0.001f, 100f }}},
-        {3, new QuizEntry { quizText = "Hvor mange liter tilsvarer 1 kubikkmeter?", answers = new string[]{ "1000 L", "100 L", "100 000 L", "10 L" }, scales = new float[] { 1f, 0.1f,  100f, 0.01f}}}
+        {1, new QuizEntry { quizText = "Hva blir volumet til steinblokken dersom vi gjør om fra kubikkmeter til kubikkdesimeter?", answers = new string[]{ "1000 dm^3", "10 000 dm^3", "10 dm^3", "100 dm^3" }, scales = new float[] { 1f, 10f, 0.01f, 0.1f }}},
+        {2, new QuizEntry { quizText = "Hva blir volumet til steinblokken dersom vi skal gjøre om til kubikkcentimeter?", answers = new string[]{ "1 000 000 cm^3", "100  cm^3", "1000 cm^3", "100 000 000 cm^3" }, scales = new float[] { 1f, 0.0001f, 0.001f, 100f }}},
+        {3, new QuizEntry { quizText = "Hvor mange liter støpemasse tror du egypterne måtte bruke for å støpe én steinblokk med et volum på én kubikkmeter?", answers = new string[]{ "1000 L", "100 L", "100 000 L", "10 L" }, scales = new float[] { 1f, 0.1f,  100f, 0.01f}}}
     };
 
     [SerializeField] private Reticle m_Reticle;                         // The scene only uses SelectionSliders so the reticle should be shown.
@@ -25,9 +25,16 @@ public class UIManager : MonoBehaviour {
     [SerializeField] private UIFader fader;
     [SerializeField] private UIFader nextQFader;
     [SerializeField] private UIFader startFader;
+    [SerializeField] private UIFader introFader;
     [SerializeField] private Text title;   
+    [SerializeField] private AudioClip spm1;
+    [SerializeField] private AudioClip spm2;
+    [SerializeField] private AudioClip spm3;
     [SerializeField] private int m_currentQuestion = 1;
     [SerializeField] private GameObject m_cube;
+    [SerializeField] private AudioSource m_Audio;
+    [SerializeField] private AudioClip intro1;
+    [SerializeField] private AudioClip intro2;
 
     private SelectionSlider selectedAnswer = null;
     List<SelectionSlider> m_sliders;
@@ -44,18 +51,22 @@ public class UIManager : MonoBehaviour {
         m_Radial.Hide();
         m_resize = m_cube.GetComponent<ResizeCube>();
         yield return StartCoroutine(fader.InteruptAndFadeOut());
-        yield return StartCoroutine(startFader.InteruptAndFadeIn());
+        yield return StartCoroutine(introFader.InteruptAndFadeIn());
         // yield return StartCoroutine(fader.InteruptAndFadeIn());
     }    
 
     public void SetSelectedAnswer(SelectionSlider answer) {                
         selectedAnswer = answer;
-        if (selectedAnswer.m_isStartBar) {
+        if (selectedAnswer.m_isIntroBar) {
+            StartCoroutine(PlayIntro());
+            StartCoroutine(introFader.InteruptAndFadeOut());
+        } else if (selectedAnswer.m_isStartBar) {
             StartCoroutine(startFader.InteruptAndFadeOut());
             StartCoroutine(fader.InteruptAndFadeIn());
             LoadNextQuestion();
+        } else {
+            m_resize.SetScaleTo(selectedAnswer.GetAnswerScale());
         }
-        m_resize.SetScaleTo(selectedAnswer.GetAnswerScale());
     }
 
     // The first entry in the answers-array is always the correct one.
@@ -75,6 +86,14 @@ public class UIManager : MonoBehaviour {
     public void LoadNextQuestion() {
         if (m_currentQuestion > 3)
             return;
+        if (m_currentQuestion == 1) {
+            m_Audio.clip = spm1;
+        } else if (m_currentQuestion == 2) {
+            m_Audio.clip = spm2;
+        } else {
+            m_Audio.clip = spm3;
+        }
+        m_Audio.Play();
         foreach (SelectionSlider slider in m_sliders) {
             slider.resetFillColor();
             slider.m_isCorrectAnswer = false;
@@ -96,5 +115,15 @@ public class UIManager : MonoBehaviour {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
         StartCoroutine(nextQFader.InteruptAndFadeOut());
+    }
+
+    IEnumerator PlayIntro() {
+        m_Audio.clip = intro1;
+        m_Audio.Play();
+        yield return new WaitForSeconds(m_Audio.clip.length);
+        m_Audio.clip = intro2;
+        m_Audio.Play();
+        yield return new WaitForSeconds(m_Audio.clip.length);
+        StartCoroutine(startFader.InteruptAndFadeIn());
     }
 }
