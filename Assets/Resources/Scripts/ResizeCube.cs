@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class ResizeCube : MonoBehaviour {
 
-    private float currentScale = 1f;
-    private float scaleTo = 1f;
+    private float currentScale = 0.2f;
+    private float scaleTo = 0.2f;
     private float scaleFactor = 1f;
     private Vector3 spawnPos;
     private float scaleTimer = 1f;
@@ -21,14 +21,14 @@ public class ResizeCube : MonoBehaviour {
         if (Counter < 150) {
             currentScale += scaleFactor;
             transform.localScale = Vector3.one * currentScale;
-            moveObject();
+            //moveObject();
             Counter++;
         }
     }
 
 
     void moveObject() {
-        transform.position = spawnPos - new Vector3(currentScale, -currentScale + 1F, currentScale - 1F) / 2F;
+        transform.position = spawnPos - new Vector3(currentScale, -currentScale, currentScale);
     }
 
     public void SetScaleTo(float s) {

@@ -41,7 +41,7 @@ namespace VRStandardAssets.Utils
         public bool m_isCorrectAnswer = false;                                // Whether this is the correct answer or not
         public bool m_isNextQuestButton = false;
         private Color m_originalColor = new Color32(34, 44, 55, 200);
-        private float m_answerScale = 1f;
+        private float m_answerScale = 0.2f;
 
         private const string k_SliderMaterialPropertyName = "_SliderValue"; // The name of the property on the SlidingUV shader that needs to be changed in order for it to fill.
         private bool hasBeenFilled = false;
@@ -191,7 +191,7 @@ namespace VRStandardAssets.Utils
         {
             // The user is now looking at the bar.
             m_GazeOver = true;
-
+            
             // Play the clip appropriate for when the user starts looking at the bar.
             m_Audio.clip = m_OnOverClip;
             m_Audio.Play();
@@ -202,7 +202,7 @@ namespace VRStandardAssets.Utils
         {
             // The user is no longer looking at the bar.
             m_GazeOver = false;
-
+            
             // If the coroutine has been started (and thus we have a reference to it) stop it.
             if (m_FillBarRoutine != null)
                 StopCoroutine(m_FillBarRoutine);

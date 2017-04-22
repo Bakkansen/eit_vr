@@ -35,6 +35,7 @@ public class UIManager : MonoBehaviour {
     [SerializeField] private AudioSource m_Audio;
     [SerializeField] private AudioClip intro1;
     [SerializeField] private AudioClip intro2;
+    [SerializeField] private bool skipIntro;
 
     private SelectionSlider selectedAnswer = null;
     List<SelectionSlider> m_sliders;
@@ -51,15 +52,23 @@ public class UIManager : MonoBehaviour {
         m_Radial.Hide();
         m_resize = m_cube.GetComponent<ResizeCube>();
         yield return StartCoroutine(fader.InteruptAndFadeOut());
-        yield return StartCoroutine(introFader.InteruptAndFadeIn());
+        if (skipIntro)
+        {
+            StartCoroutine(fader.InteruptAndFadeIn());
+            LoadNextQuestion();
+        }
+        else
+        {
+            yield return StartCoroutine(introFader.InteruptAndFadeIn());
+        }
         // yield return StartCoroutine(fader.InteruptAndFadeIn());
     }    
 
     public void SetSelectedAnswer(SelectionSlider answer) {                
         selectedAnswer = answer;
         if (selectedAnswer.m_isIntroBar) {
-            StartCoroutine(PlayIntro());
             StartCoroutine(introFader.InteruptAndFadeOut());
+            StartCoroutine(PlayIntro());
         } else if (selectedAnswer.m_isStartBar) {
             StartCoroutine(startFader.InteruptAndFadeOut());
             StartCoroutine(fader.InteruptAndFadeIn());
@@ -118,12 +127,15 @@ public class UIManager : MonoBehaviour {
     }
 
     IEnumerator PlayIntro() {
+        
         m_Audio.clip = intro1;
         m_Audio.Play();
         yield return new WaitForSeconds(m_Audio.clip.length);
+        
         m_Audio.clip = intro2;
         m_Audio.Play();
         yield return new WaitForSeconds(m_Audio.clip.length);
+
         StartCoroutine(startFader.InteruptAndFadeIn());
     }
 }
